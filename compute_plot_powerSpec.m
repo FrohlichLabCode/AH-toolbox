@@ -1,4 +1,4 @@
-function tmpPow = compute_plot_powerSpec(mat,figHandle,numRow, numCol, subplotnum)
+function [pow, foi, tickLoc, tickLabel] = compute_plot_powerSpec(mat,figHandle,numRow, numCol, subplotnum)
 % Input:
 %   mat: n channels by time
 %   subplotnum: where in the subplot
