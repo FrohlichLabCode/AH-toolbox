@@ -1,0 +1,170 @@
+cluster
+cd Code/5CSRTT_eeglab/
+squeue -u angelvv
+sh clusterSubmission0171FC_stim.sh
+scancel
+
+activate phy
+phy template-gui params.py
+------------------------------------------
+AH_rwb() # change to red white blue brewer colormap
+if nargin > 1; % then paramstruct is an argument
+if isfield(paramstruct,'labelfontsize') ;    %  then change to input value
+    labelfontsize = getfield(paramstruct,'labelfontsize') ; 
+end;
+end
+regionPairNames = {region.PairNames{regionPairPicks}}; % slice several entries of a cell
+
+
+[foi, tickLoc, tickLabel,psitickLoc,psitickLabel] = getFoiLabel(2, 128, 150, 2); % (lowFreq, highFreq, numFreqs, linORlog)
+region = getAnimalInfo(animalCode);
+recNamePlot = regexprep(recName, '_', ' '); % replace _ with space
+colormap(awesomeMap)
+ColorSet = [[0,0,205];[138,43,226];[238,130,238]]/256; %medianblue, blueviolet, violet, from https://www.rapidtables.com/web/color/purple-color.html
+region = getAnimalInfo(animalCode);
+date = datestr(now,'yyyymmdd'); % Get today's date automatically
+
+gscatter(thisEphys, thisBehav, thisLabel); % x,y, size, color
+            xlabel(xLabel); ylabel(yLabel);
+            title(regionPairName);
+            legend(optoNames{optoIDs});
+% Join strings in cell array together with space in between
+join(condNames, '  ')
+
+% print in place of line
+lastsize = 0;
+fprintf(repmat('\b', 1, lastsize));
+lastsize = fprintf(['Processing' num2str(numel(foi)*size(t,2)) ' freq x t: ' num2str(iF)]);
+            
+% reorganize dimention
+X = permute(X,[2,1,3]);
+
+# switch between figs
+set(0,'CurrentFigure',fig1)
+
+hmMask = ismember(behav.HitMiss,classIDs); % only include HM types in classIDs (eg.1=cor,2=pre,3=omi,0=inc)
+    
+splitName = regexp(recName, '[_.]', 'split'); % split on multiple deliminators
+fig = AH_figure(numRows, numCols, name); %numRows, numCols, name
+    ylabel({'Trial #'; 'Theta Alpha Sham'}); %add 2-line label
+    save([rootAnalysisDir 'zPSTH_mean_visual.mat'],'timePSTH','toPlot','frZ','validChn', '-v7.3');
+    savefig(fig, [rootAnalysisDir 'Z-score FR PSTH_chn-avg_visual0-2.fig'],'compact');
+    saveas(fig, [rootAnalysisDir 'Z-score FR PSTH_chn-avg_visual0-2.png']);
+
+if ~exist(rootAnalysisDir,'dir'); mkdir(rootAnalysisDir); end
+
+%         shadedErrorBar([10:10:50],squeeze(sessionAvg.SpecPPC_noStim(ioptoFreq,iFreq,:,:))',{@mean,@std},{'k-o','markerfacecolor','k'}); hold on;
+%         shadedErrorBar([10:10:50],squeeze(sessionAvg.SpecPPC(ioptoFreq,iFreq,:,:))',{@mean,@std},{'-o','markerfacecolor',ColorSet(end,:),'color',ColorSet(end,:)},0.3);  %0.3 is transparency
+
+    set(gca,'YDir','normal','TickDir','out','YTick',tickLoc,'YTickLabel',tickLabel)
+    ylim([tickLoc(1) tickLoc(end)]);
+xlabel('Time to stim [s]');
+            ylabel('Freq [Hz]');      
+            axis tight
+cl = colorbar('northoutside');
+set(gca,'XTick',[0,5],'XTickLabel',[0,5]);xlim([-4,5]);caxis([0.4,0.9])
+set(gcf,'renderer','Painters') % enable adobe illustrator processing
+
+
+timing:
+b = tic;
+sprintf(['time:' num2str(toc(b))])
+
+if ~exist('variable')
+if length(dir([GroupSessionDir 'sessionSpec_' sessionName '*.fig'])) >= length(condID)
+if ~isempty(dir([GroupAnalysisDir saveName '_power_*.mat'])) || skipRec == 0 
+strncmp(statBehavAll.accP.AnimalID(:,1),'0181',4) % compare array of cells to string
+ statBehavAll.(['accPAllmn' level sublevel]).SessionID(:,1:2) = repmat(num2str(nSess,'%02.f'),5,1);
+% a column in a table is a cell array
+% only "dir" can do wildcard search, "exist" needs full file name
+---------
+S2.(fieldName).AnimalID = repmat({'0179'},size(S2.(fieldName),1),1);
+    S2.(fieldName) = S2.(fieldName)(:,[size(S2.(fieldName),2),1:size(S2.(fieldName),2)-1]); % move last column to first
+
+nplvsu = sum(any(~isnan(ppc_plv),[2,3])); % count number of units with any non-nan value
+toPlot1(nansum(toPlot1,2)==0,:) = []; % delete rows with all 0
+
+--------------------------------------------
+% parallel computing
+     numCore = 16; % USR DEFINE (since we have 16 channels)
+     myPool = parpool('local',numCore,'SpmdEnabled',false); 
+
+if cluster == 0; parforArg = 0; %flag for whether use parfor or for
+    else parforArg = Inf; end
+    parfor (iReg1Chn = 1:numChnReg1, parforArg)
+	end
+if cluster == 1; delete(myPool);end
+
+
+fig = AH_figure(numRows, numCols, name); %numRows, numCols, namesubplot(1,3,3)
+x  = funcCon.tvec';
+y  = LPl_lf_stats(1,:)';
+dy = LPl_lf_stats(2,:)';  % made-up error values
+low = y-dy; low(low<0) = 0.1; %Power has to >0 to take log (convert to db)
+h  = fill([x;flipud(x)],[pow2db(low);pow2db(flipud(y+dy))],'b','linestyle','none');
+set(h,'facealpha',.5); % make translucent
+l1 = line(x,pow2db(y),'Color','blue');
+
+hold on
+y  = LPl_hf_stats(1,:)';
+dy = LPl_hf_stats(2,:)';  % made-up error values
+low = y-dy; low(low<0) = 0.1;
+h  = fill([x;flipud(x)],[pow2db(low);pow2db(flipud(y+dy))],'r','linestyle','none');
+set(h,'facealpha',.5); % make translucent
+l2 = line(x,pow2db(y),'Color','red');
+legend([l1 l2],'theta','gamma','Location','east');
+
+h1 = shadedErrorBar(1:numFreq, nanmean(toPlotb,1),sem, '-c',0.5);
+h2 = shadedErrorBar(1:numFreq, nanmean(toPlotc,1),sem, '-c',0.5);
+legend([h1.mainLine h2.mainLine],'6b','6c')
+
+% matlab default color
+myColor(1,:) = [0 0.4470 0.7410]; %blue (Theta)
+myColor(2,:) = [0.8500 0.3250 0.0980]; % orange (Alpha)
+myColor(3,:) = [0 0 0];% black (Sham)
+shadedErrorBar(tvecPSTH,nanmean(toPlot,1),sem,{'Color',myColor(iCond,:)});
+
+% multiple columns
+lgd = legend('Location','southeast');
+if numel(clus)>10; lgd.NumColumns = 2; end
+
+Histogram:
+A = sessionMetaBehav(trialMask,:).HitMiss;
+C = categorical(A,statBehav.HitMiss,statBehav.HitMissName)
+subplot(2,numType,iType)
+h = histogram(C,'BarWidth',0.5) 
+text([1,2,3,4],[0,0,0,0],string(h.Values),'horizontalalignment','center','verticalalignment','bottom') % add label
+        
+
+bar plot with data
+scatter(repmat([1-0.22,1,1.22],[sum(HMMask(:,1)),1]),statBehav.accP{HMMask(:,1),trialTypes},10,'k','filled','MarkerFaceAlpha',0.4','jitter','on','jitterAmount',0.08);
+
+----------------------
+% about cells
+regionPairIDs   = [3,4,6]; % only pick cortical pairs
+    regionPairNames = {region.PairNames{regionPairIDs}}; % slice several entries of a cell
+    
+if ismember(level(1),{'7','8','9'})
+        sessionMetaBehav.OptoID(sessionMetaBehav.OptoType == 'Sham') = 0;
+        sessionMetaBehav.OptoID(sessionMetaBehav.OptoType == 'Theta') = 1;
+        sessionMetaBehav.OptoID(sessionMetaBehav.OptoType == 'Alpha') = 2;
+        end
+-----------------------
+% About SU
+    spkWav = suPLV.(regionName).(twinName).waveform;
+    spkWavNorm = spkWav./abs(min(spkWav)); % normalize based on negative dip
+
+
+
+-----------------
+DAQ:
+queueOutputData(s,[x refWave]); % [AO0, AO1] % queue output data
+
+----------------
+function [distmatpd0,distmatpd1,distmatrecur,pd0,pd1, tlim] = topoRecur(X,varargin)
+p=inputParser;
+p.addParameter('distfun',@norm) % distance between points at the same time point
+% -- parameters for decomposition -- %
+p.addParameter('SR',1,@isnumeric); % sampling rate
+p.addParameter('tlim',[1 48]);% time limits of decomposition
+p.parse(varargin{:});

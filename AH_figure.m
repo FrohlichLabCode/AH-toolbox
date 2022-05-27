@@ -3,5 +3,5 @@ function fig = AH_figure(numRows, numCols, name)
 
 %screensize = get( groot, 'Screensize' );
 if ~exist('name','var'); name = 'figure'; end
-fig = figure('name',name,'Position',[10 50 320*numRows 270*numCols]);%x,y,width,height
+fig = figure('name',name,'Position',[5 30 320*numCols 270*numRows]);%bottom left x,y,width,height; y=0 can see title; y=30 can see x label
 end

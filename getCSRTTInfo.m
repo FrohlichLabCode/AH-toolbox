@@ -7,11 +7,11 @@ hitMissNames = {'Correct','Premature','Incorrect','Omission','noPremature'};
 % Trial inforamtion
 if level(1) == '6'
     alignNames = {'Init','Stim','Touch'};
-    if length(level)>1 && level(2) == 'a'
-        delayNames = {'D2'};
-        delayTypes = {2};
-    end
-elseif level(1) == '7'
+%     if length(level)>1 && level(2) == 'a'
+%         delayNames = {'D2'};
+%         delayTypes = {2};
+%     end
+else % level 7 8 9 
     alignNames = {'Init','Stim','Touch','Opto'};
     optoNames  = {'Theta','Alpha','ArTheta','ArAlpha','Sham','Oall'};
 end
