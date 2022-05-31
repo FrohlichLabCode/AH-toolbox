@@ -1,0 +1,156 @@
+library(readxl)
+library(ez)
+library("Rmisc") # for summarySE
+require(ggplot2)
+data <- read_excel("E:/Dropbox (Frohlich Lab)/Codebase/CodeAngel/5CSRTT/TimeWindowANOVA/0153_AttentionTask3/0153_level3_TimeWindowMean.xlsx")
+View(data)
+
+
+data$session<-as.factor(data$session)
+data$timeWin<-as.factor(data$timeWin)
+data$freqBand<-factor(data$freqBand, levels = c("theta", "alpha", "beta", "gamma")) # define the order of factor
+
+depvList = c('PPC', 'LPl','VC','PPC_LPl_plv','PPC_LPl_coh','PPC_VC_plv','PPC_VC_coh','LPl_VC_plv','LPl_VC_coh')# <----------------------
+# depv = "LPl_VC_plv"
+
+pathname="E:/Dropbox (Frohlich Lab)/Codebase/CodeAngel/5CSRTT/TimeWindowANOVA/0153_AttentionTask3/"   # add your .csv path <--------------
+studyname="ANOVA result_"
+
+for(depv in depvList){
+
+filename=paste(pathname,studyname,depv," output.txt",sep="") #filename for output
+
+data$depvar<-data[[depv]] # $depv only takes depv as string, [[depv]] returns a vector, [depv] returns a data.frame
+depv2 = paste0(depv, '_f') # concatenate without space
+data$depvar2<-data[[depv2]]
+
+data_subset1 = subset(data, freqBand=='theta')
+m = ezANOVA(dv=depvar, within=timeWin, wid=session, data=data_subset1, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out1<-capture.output(m) # show results
+out2<-capture.output(pairwise.t.test(data_subset1$depvar,data_subset1$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+data_subset2 = subset(data, freqBand=='alpha')
+m = ezANOVA(dv=depvar, within=timeWin, wid=session, data=data_subset2, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out3<-capture.output(m) # show results
+out4<-capture.output(pairwise.t.test(data_subset2$depvar,data_subset2$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+data_subset3 = subset(data, freqBand=='beta')
+m = ezANOVA(dv=depvar, within=timeWin, wid=session, data=data_subset3, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out5<-capture.output(m) # show results
+out6<-capture.output(pairwise.t.test(data_subset3$depvar,data_subset3$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+data_subset4 = subset(data, freqBand=='gamma')
+m = ezANOVA(dv=depvar, within=timeWin, wid=session, data=data_subset4, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out7<-capture.output(m) # show results
+out8<-capture.output(pairwise.t.test(data_subset4$depvar,data_subset4$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+### plot
+doPlot = 0
+if(doPlot == 1){
+  dataSummary<-summarySE(data, measurevar="depvar", groupvars=c("timeWin","freqBand"),na.rm = TRUE,conf.interval = 0.95)
+  
+  pdf(paste(pathname,studyname,depv,"_bar_theta.pdf",sep=""), width = 5, height = 3) #resolution
+  ggplot(dataSummary, aes(x=freqBand, y=depvar, fill=timeWin)) +
+    geom_bar(position=position_dodge(), stat="identity",
+             colour="black", # Use black outlines,
+             size=.3) +      # Thinner lines) +
+    geom_errorbar(aes(ymin=depvar-se, ymax=depvar+se), # sd, se or ci
+                  size=.3,    # Thinner lines
+                  width=.15,
+                  position=position_dodge(.9)) +
+    ylim(0, 0.55) +
+    xlab("Frequency band") +
+    ylab("Phase locking value") +
+    scale_fill_hue(name="Time window",labels=c("[-4,-2] sec", "[-2,0] sec", "[0,2] sec")) +    # Legend label
+    ggtitle(paste("Normed",depv,"at different time windows")) +
+    theme_bw()
+  
+  dev.off()
+}
+
+
+m = ezANOVA(dv=depvar2, within=timeWin, wid=session, data=data_subset1, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out9<-capture.output(m) # show results
+out10<-capture.output(pairwise.t.test(data_subset1$depvar2,data_subset1$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+m = ezANOVA(dv=depvar2, within=timeWin, wid=session, data=data_subset2, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out11<-capture.output(m) # show results
+out12<-capture.output(pairwise.t.test(data_subset2$depvar2,data_subset2$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+m = ezANOVA(dv=depvar2, within=timeWin, wid=session, data=data_subset3, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out13<-capture.output(m) # show results
+out14<-capture.output(pairwise.t.test(data_subset3$depvar2,data_subset3$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+m = ezANOVA(dv=depvar2, within=timeWin, wid=session, data=data_subset4, type=3, detailed=TRUE) #wid=within subject ID, type=3
+out15<-capture.output(m) # show results
+out16<-capture.output(pairwise.t.test(data_subset4$depvar2,data_subset4$timeWin,paired=TRUE,alternative="two.sided",p.adjust.method="bonferroni"))
+
+# Plot bar graph
+if(doPlot==1){
+  dataSummary<-summarySE(data, measurevar="depvar", groupvars=c("timeWin","freqBand"),na.rm = TRUE,conf.interval = 0.95)
+  pdf(paste(pathname,studyname,depv2,"_bar_freq.pdf",sep=""),width = 5, height = 3)
+  ggplot(dataSummary, aes(x=freqBand, y=depvar, fill=timeWin)) +
+    geom_bar(position=position_dodge(), stat="identity",
+             colour="black", # Use black outlines,
+             size=.3) +      # Thinner lines) +
+    geom_errorbar(aes(ymin=depvar-se, ymax=depvar+se), # sd, se or ci
+                  size=.3,    # Thinner lines
+                  width=.15,
+                  position=position_dodge(.9)) +
+    xlab("Frequency band") +
+    ylab("Peak frequency [Hz]") +
+    scale_fill_hue(name="Time window",labels=c("[-4,-2] sec", "[-2,0] sec", "[0,2] sec")) +    # Legend label
+    ggtitle(paste("Peak", depv2, "at different time windows"))
+  
+  dev.off()
+}
+
+
+### Write Textfile ###
+stri0<-paste('################ 0153_level3','', ' ##############',sep="")
+stri1<-c('################ Factorial ANOVA ########### ')
+stri2<-c('################ power ########### ')
+stri3<-c('################ frequency ########### ')
+stri01<-c('################ theta ########### ')
+stri02<-c('################ alpha ########### ')
+stri03<-c('################ beta ########### ')
+stri04<-c('################ gamma ########### ')
+
+
+cat(stri0,file=filename,sep="\n",append=FALSE)
+cat(stri1,file=filename,sep="\n",append=TRUE)
+cat(stri2,file=filename,sep="\n",append=TRUE)
+cat(stri01,file=filename,sep="\n",append=TRUE)
+cat(out1,file=filename,sep="\n",append=TRUE)
+cat(out2,file=filename,sep="\n",append=TRUE)
+
+cat(stri02,file=filename,sep="\n",append=TRUE)
+cat(out3,file=filename,sep="\n",append=TRUE)
+cat(out4,file=filename,sep="\n",append=TRUE)
+
+cat(stri03,file=filename,sep="\n",append=TRUE)
+cat(out5,file=filename,sep="\n",append=TRUE)
+cat(out6,file=filename,sep="\n",append=TRUE)
+
+cat(stri04,file=filename,sep="\n",append=TRUE)
+cat(out7,file=filename,sep="\n",append=TRUE)
+cat(out8,file=filename,sep="\n",append=TRUE)
+
+cat(stri3,file=filename,sep="\n",append=TRUE)
+cat(stri01,file=filename,sep="\n",append=TRUE)
+cat(out9,file=filename,sep="\n",append=TRUE)
+cat(out10,file=filename,sep="\n",append=TRUE)
+
+cat(stri02,file=filename,sep="\n",append=TRUE)
+cat(out11,file=filename,sep="\n",append=TRUE)
+cat(out12,file=filename,sep="\n",append=TRUE)
+
+cat(stri03,file=filename,sep="\n",append=TRUE)
+cat(out13,file=filename,sep="\n",append=TRUE)
+cat(out14,file=filename,sep="\n",append=TRUE)
+
+cat(stri04,file=filename,sep="\n",append=TRUE)
+cat(out15,file=filename,sep="\n",append=TRUE)
+cat(out16,file=filename,sep="\n",append=TRUE)
+
+}
